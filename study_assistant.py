@@ -46,28 +46,26 @@ if __name__ == '__main__':
 
         subjects[subject] = int(time)
 
-    completeness = 0
     if len(subjects):
         completeness = print_study_plan(subjects)
 
-    with open('.env', 'r') as fp:
-        HF_API_KEY = fp.read().strip()
+        with open('.env', 'r') as fp:
+            Hug_api_key = fp.read().strip()
 
-    client = InferenceClient(token=HF_API_KEY)
-    prompt = """
-    I have to prepare for my {subjects} exams. 
-    I've completed {completeness:.2f}% of my curriculum. My motivation should be:
-    """.format(
-        subjects=','.join(subjects.keys()),
-        completeness=completeness
-    )
+        client = InferenceClient(
+            token=Hug_api_key,
+        )
+        prompt = (f"I have to prepare for my {subjects} exams. "
+                  f"I've completed {completeness}% of my curriculum. My motivation should be:")
 
-    response = client.text_generation(
-        prompt=prompt,
-        model="TinyLlama/TinyLlama-1.1B-Chat-v1.0",  # https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0
-        temperature=0.01,
-        max_new_tokens=50,
-        seed=42,
-        return_full_text=True,
-    )
-    print(response)
+        response = client.chat.completions.create(
+            model="Qwen/Qwen3-Coder-480B-A35B-Instruct",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+        print(response)
+
